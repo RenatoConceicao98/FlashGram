@@ -3,34 +3,21 @@
 
 typedef struct {
     int id;
-    char *descricao;
-    char *influencer;
-    char *categoria;
+    char descricao[150];
+    char influencer[50];
+    char categoria[50];
+    int visualizacoes;
+    int gostos;
+    int comentarios;
     float popularidade;
-    // ... campos de popularidade
 } Post;
 
-// No post.c, terás algo como:
-Post **lista_posts; // Array de ponteiros para alocação dinâmica
-int total_posts;
+void guardar_post(int id);
 
-/**
- * Vai carregar todos os posts guardados nos ficheiros para a memória
- * 
- * Retorno: Apenas retornará uma mensagem se algo correr mal para alertar, senão não terá retorno
-*/
-carregar_posts();
+void remover_post(int id);
 
+void listar_post(int id);
 
-/**
- * Vai carregar os restantes dados relativos aos posts para a memória
- * 
- * Retorno: Apenas retornará uma mensagem se algo correr mal para alertar, senão não terá retorno
-*/
-carregar_popularidade();
-
-
-
-
+void limpar_memoria_posts();
 
 #endif
