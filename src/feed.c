@@ -4,7 +4,7 @@
 #include "feed.h"
 #include "post.h"
 
-
+// para qsort
 int comparar_posts(const void *a, const void *b) {
     // Fazemos o cast genérico para a struct Post
     Post *p1 = (Post *)a;
