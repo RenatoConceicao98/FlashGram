@@ -24,24 +24,16 @@ int comparar_posts(const void *a, const void *b) {
 
 
 void calcularFeedOrdenado() {
+
     int total = obter_total_posts();
     Post *feed = obter_feed_principal();
 
-    if (total == 0 || feed == NULL) {
-        printf("[AVISO] Nao existem posts para apresentar no feed.\n");
-        return;
-    }
-
     // 1. Ordenação rápida nativa do C
     qsort(feed, total, sizeof(Post), comparar_posts);
-    
-    // 
 
     // 2. Regra dos "3 Influencers" (Evitar monopólio no feed)
     for (int i = 0; i < total - 2; i++) {
-        if (strcmp(feed[i].influencer, feed[i+1].influencer) == 0 &&
-            strcmp(feed[i].influencer, feed[i+2].influencer) == 0) {
-            
+        if (strcmp(feed[i].influencer, feed[i+1].influencer) == 0 && strcmp(feed[i].influencer, feed[i+2].influencer) == 0) {
             // Procurar o próximo influencer diferente
             int idx_troca = -1;
             for (int j = i + 3; j < total; j++) {
@@ -60,39 +52,32 @@ void calcularFeedOrdenado() {
         }
     }
 
-    printf("\n======================================================\n");
-    printf("                  FEED FLASHGRAM                      \n");
-    printf("======================================================\n");
+    //Ptint do feed
     for (int i = 0; i < total; i++) {
-        printf("[%03d] Pop: %.2f | %-15s | %s\n", 
-               feed[i].id, 
-               feed[i].popularidade, 
-               feed[i].influencer, 
-               feed[i].descricao);
+        printf("[%03d] Pop: %.2f | %-15s | %s\n", feed[i].id, feed[i].popularidade, feed[i].influencer, feed[i].descricao);
     }
-    printf("======================================================\n");
+
 }
 
 
 
 void guardarFeedOrdenado() {
+
     int total = obter_total_posts();
     Post *feed = obter_feed_principal();
 
     if (total == 0 || feed == NULL) {
-        printf("[ERRO] Feed vazio, nada para guardar.\n");
+        printf(" Feed vazio, nada para guardar\n");
         return;
     }
 
     // Abre o ficheiro em modo de escrita ("w" - cria de novo ou substitui)
     FILE *f = fopen("feed_ordenado.csv", "w");
     if (f == NULL) {
-        printf("[ERRO] Nao foi possivel criar o ficheiro feed_ordenado.csv\n");
+        printf("Nao foi possivel criar o ficheiro feed_ordenado.csv\n");
         return;
     }
 
-    // Escrever o cabeçalho
-    fprintf(f, "ID;Descricao;Influencer;Categoria;Views;Gostos;Comentarios;Popularidade\n");
 
     // Escrever os dados já ordenados pelo calcularFeedOrdenado()
     for (int i = 0; i < total; i++) {
@@ -108,5 +93,5 @@ void guardarFeedOrdenado() {
     }
 
     fclose(f);
-    printf("Feed final guardado no ficheiro 'feed_ordenado.csv'.\n");
+    printf("Feed final guardado\n");
 }

@@ -12,12 +12,19 @@ typedef struct {
     float popularidade;
 } Post;
 
-void guardar_post(int id);
+
+int carregar_dados(); 
+
+void guardar_post(int id, const char *descricao, const char *influencer, int gostos, int comentarios, int visualizacoes);
 
 void remover_post(int id);
 
-void listar_post(int id);
+int listar_post(int id);
 
 void limpar_memoria_posts();
+
+int obter_total_posts();
+
+Post* obter_feed_principal();
 
 #endif

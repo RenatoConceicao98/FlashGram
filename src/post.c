@@ -3,10 +3,8 @@
 #include <string.h>
 #include "../include/post.h" 
 
-
 static Post *post = NULL; 
 static int total_posts = 0;
-
 
 static int obterProxID() {
     int maior_id = 0;
@@ -21,7 +19,6 @@ static int obterProxID() {
 }
 
 int carregar_dados() {
-
     //Abrir post.csv
     FILE *f_posts = fopen("posts.csv", "r");
     if (f_posts == NULL) {
@@ -33,12 +30,9 @@ int carregar_dados() {
     FILE *f_pop = fopen("popularidade.csv", "r");
     if (f_pop == NULL) {
         printf("Erro ao abrir popularidade.csv\n");
+        if (f_posts) fclose(f_posts); // Segurança extra
         return 0; 
     }
-
-    // Ignora a primeira linha (cabeçalho)
-    fscanf(f_posts, "%*[^\n]\n");
-    fscanf(f_pop, "%*[^\n]\n");
 
     while (!feof(f_posts)) {
         Post *temp = realloc(post, (total_posts + 1) * sizeof(Post));
@@ -49,11 +43,11 @@ int carregar_dados() {
         post = temp;
 
         // Lê os 4 dados principais do post
-        int lidos = fscanf(f_posts, "%d;%d;%d;%d\n",
-                           &post[total_posts].id,
-                           post[total_posts].descricao,
-                           post[total_posts].influencer,
-                           post[total_posts].categoria);
+        int lidos = fscanf(f_posts, "%d;%149[^;];%49[^;];%49[^\n]\n",
+                   &post[total_posts].id,
+                   post[total_posts].descricao,
+                   post[total_posts].influencer,
+                   post[total_posts].categoria);
 
         if (lidos == 4) {
             post[total_posts].visualizacoes = 0;
@@ -63,9 +57,8 @@ int carregar_dados() {
             total_posts++;
         }
         else {
-            printf("Erro ao ler dados");
+            break; 
         }
-
     }
     
     while (!feof(f_pop)) {
@@ -89,9 +82,8 @@ int carregar_dados() {
             }
         }
         else {
-            printf("Erro ao ler dados");
+            break;
         }
-
     }
 
     //Fechar ficheiros
@@ -102,7 +94,8 @@ int carregar_dados() {
     return 1;
 }
 
-void guardar_post(int id) {
+
+void guardar_post(int id, const char *descricao, const char *influencer, int gostos, int comentarios, int visualizacoes) {
     int idx = -1;
 
     if (id > 0) {
@@ -117,7 +110,6 @@ void guardar_post(int id) {
             printf("Post não encontrado.\n");
             return;
         }
-
     } 
     else 
     {
@@ -129,27 +121,19 @@ void guardar_post(int id) {
         post = temp; 
         idx = total_posts;
         post[idx].id = obterProxID();
+        
+        // Inicializar a categoria a vazio para não ficar com lixo de memória
+        strcpy(post[idx].categoria, "N/A"); 
     }
 
-    getchar(); 
+    // Copiar os dados passados pelo main para a memória
+    strcpy(post[idx].descricao, descricao);
+    strcpy(post[idx].influencer, influencer);
+    post[idx].gostos = gostos;
+    post[idx].comentarios = comentarios;
+    post[idx].visualizacoes = visualizacoes;
 
-    printf("Descricao: ");
-    fgets(post[idx].descricao, sizeof(post[idx].descricao), stdin);
-    post[idx].descricao[strcspn(post[idx].descricao, "\n")] = 0; 
-
-    printf("Influencer: ");
-    fgets(post[idx].influencer, sizeof(post[idx].influencer), stdin);
-    post[idx].influencer[strcspn(post[idx].influencer, "\n")] = 0;
-
-    printf("Gostos: ");
-    scanf("%d", &post[idx].gostos);
-    
-    printf("Comentarios: ");
-    scanf("%d", &post[idx].comentarios);
-    
-    printf("Visualizacoes: ");
-    scanf("%d", &post[idx].visualizacoes);
-
+    // Cálculo da popularidade
     post[idx].popularidade = (0.5f * post[idx].gostos + 0.3f * post[idx].comentarios + 0.2f * post[idx].visualizacoes) / 100.0f;
 
     if (id == 0) {
@@ -160,9 +144,7 @@ void guardar_post(int id) {
     }
 }
 
-
 void remover_post(int id) {
-
     if (total_posts == 0 || post == NULL) {
         printf("O feed esta vazio\n");
         return;
@@ -204,16 +186,13 @@ void remover_post(int id) {
     printf(" Post com ID %d removido \n", id);
 }
 
-
-void listar_post(int id) {
-
+int listar_post(int id) {
     if (total_posts == 0 || post == NULL) {
         printf("Nao ha posts para apresentar\n");
-        return;
+        return 0;
     }
 
     for (int i = 0; i < total_posts; i++) {
-        
         if (post[i].id == id) {
             printf("Influencer : %s\n", post[i].influencer);
             printf("Descricao  : %s\n", post[i].descricao);
@@ -222,19 +201,27 @@ void listar_post(int id) {
             printf("Popularidade: %.2f\n", post[i].popularidade);
             printf("-------------------------------\n");
             
-            return; 
+            return 1; 
         }
     }
     printf("Post nao foi encontrado no sistema.\n");
+    return 0;
 }
 
-
 void limpar_memoria_posts() {
-
     if (post != NULL) {
         free(post);
         post = NULL;
         total_posts = 0;
         printf("Memoria libertada\n");
     }
+}
+
+
+int obter_total_posts() {
+    return total_posts;
+}
+
+Post* obter_feed_principal() {
+    return post;
 }
